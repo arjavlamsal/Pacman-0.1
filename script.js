@@ -1,3 +1,15 @@
+const resetButton = document.createElement("button");
+resetButton.textContent = " Reset Game ";
+resetButton.style.position = "fixed"; // Position the button as needed
+resetButton.style.bottom = "100px";
+resetButton.style.left = "60px";
+document.body.appendChild(resetButton); // Append the button to the body
+
+// Add event listener for the reset button
+resetButton.addEventListener("click", () => {
+  location.reload(); // Reload the page to reset the game
+});
+
 let upPressed = false;
 let downPressed = false;
 let leftPressed = false;
