@@ -237,6 +237,7 @@ function keyDown(event) {
 document.addEventListener('keydown', keyDown);
 document.addEventListener('keyup', keyUp);
 
+
 // Initialize the maze on load
 populateMaze();
 displayLeaderboard();
