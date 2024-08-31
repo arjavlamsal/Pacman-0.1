@@ -36,37 +36,36 @@ let enemies = [
     { x: 1, y: 8 }
 ];
 
-// Populates the maze in the HTML
-function populateMaze() {
-    main.innerHTML = ''; // Clear previous maze
-    for (let y = 0; y < maze.length; y++) {
-        for (let x = 0; x < maze[y].length; x++) {
-            let block = document.createElement('div');
-            block.classList.add('block');
-
-            switch (maze[y][x]) {
-                case 1:
-                    block.classList.add('wall');
-                    break;
-                case 2:
-                    block.id = 'player';
-                    let mouth = document.createElement('div');
-                    mouth.classList.add('mouth');
-                    block.appendChild(mouth);
-                    break;
-                case 3:
-                    block.classList.add('enemy');
-                    break;
-                default:
-                    block.classList.add('point');
-                    block.style.height = '1vh';
-                    block.style.width = '1vh';
-            }
-
-            main.appendChild(block);
-        }
-    }
+function playSound(fileName) {
+    var sound = new Audio(`music/${fileName}`)
+    sound.play()
 }
+
+// Player movement and grid-based collision detection
+// Event listeners for arrow button clicks
+document.getElementById('lbttn').addEventListener('click', () => {
+    leftPressed = true;
+    movePlayer();
+    leftPressed = false; // Reset after movement
+});
+
+document.getElementById('ubttn').addEventListener('click', () => {
+    upPressed = true;
+    movePlayer();
+    upPressed = false; // Reset after movement
+});
+
+document.getElementById('rbttn').addEventListener('click', () => {
+    rightPressed = true;
+    movePlayer();
+    rightPressed = false; // Reset after movement
+});
+
+document.getElementById('dbttn').addEventListener('click', () => {
+    downPressed = true;
+    movePlayer();
+    downPressed = false; // Reset after movement
+});
 
 // Player movement and grid-based collision detection
 function movePlayer() {
@@ -88,14 +87,52 @@ function movePlayer() {
         }
 
         // Update maze and player position
-        maze[playerY][playerX] = 0;
-        maze[newY][newX] = 2;
+        maze[playerY][playerX] = -1; // Mark old position as visited
+        maze[newY][newX] = 2; // Move player to new position
         playerX = newX;
         playerY = newY;
         populateMaze();
         updatePlayerMouthDirection();
     }
 }
+
+
+// Update the populateMaze function to handle visited cells
+function populateMaze() {
+    main.innerHTML = ''; // Clear previous maze
+    for (let y = 0; y < maze.length; y++) {
+        for (let x = 0; x < maze[y].length; x++) {
+            let block = document.createElement('div');
+            block.classList.add('block');
+
+            switch (maze[y][x]) {
+                case 1:
+                    block.classList.add('wall');
+                    break;
+                case 2:
+                    block.id = 'player';
+                    let mouth = document.createElement('div');
+                    mouth.classList.add('mouth');
+                    block.appendChild(mouth);
+                    break;
+                case 3:
+                    block.classList.add('enemy');
+                    break;
+                case 0:
+                    block.classList.add('point');
+                    block.style.height = '1vh';
+                    block.style.width = '1vh';
+                    break;
+                case -1:
+                    // Do nothing for visited cells, so the point doesn't reappear
+                    break;
+            }
+
+            main.appendChild(block);
+        }
+    }
+}
+
 
 // Update the player's mouth direction based on movement
 function updatePlayerMouthDirection() {
@@ -122,6 +159,7 @@ function loseLife() {
     } else {
         resetPlayerPosition();
     }
+    playSound('lozer.wav');
 }
 
 // Reset player position after losing a life
@@ -133,6 +171,7 @@ function resetPlayerPosition() {
     populateMaze();
 }
 
+// Move enemies randomly
 // Move enemies randomly
 function moveEnemies() {
     enemies.forEach(enemy => {
@@ -148,10 +187,16 @@ function moveEnemies() {
         let newY = enemy.y + randomDirection.y;
 
         if (maze[newY][newX] !== 1 && maze[newY][newX] !== 3) {
-            maze[enemy.y][enemy.x] = 0; // Remove enemy from old position
+            // Mark the enemy's old position as visited if it had a point
+            if (maze[enemy.y][enemy.x] === 0) {
+                maze[enemy.y][enemy.x] = -1;
+            } else {
+                maze[enemy.y][enemy.x] = 0; // Otherwise, just clear the old position
+            }
+            
             enemy.x = newX;
             enemy.y = newY;
-            maze[enemy.y][enemy.x] = 3; // Place enemy in new position
+            maze[enemy.y][enemy.x] = 3; // Place enemy in the new position
         }
 
         // Check for collision with player
@@ -163,10 +208,12 @@ function moveEnemies() {
     populateMaze();
 }
 
+
 // Start the game when the start button is clicked
 startButton.addEventListener('click', () => {
     startDiv.style.display = 'none';
     startGame();
+    playSound('soundpacman.wav');
 });
 
 // End the game
@@ -174,6 +221,7 @@ function endGame(message) {
     clearInterval(gameInterval);
     clearInterval(enemyInterval);
     alert(message);
+    playSound('click.mp3');
     const playerName = prompt(`${message}\nPlease enter your name:`);
     if (playerName) {
         saveScore(playerName, score);
