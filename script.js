@@ -150,14 +150,26 @@ function updatePlayerMouthDirection() {
     }
 }
 
+
 // Manage player lives
+// Trigger Both Hit and Dead Animations
 function loseLife() {
     lives--;
     livesElement[lives].style.visibility = 'hidden';
+    
+    const player = document.querySelector('#player');
     if (lives <= 0) {
         endGame('Game Over!');
+        player.classList.add('dead');
+        setTimeout(() => {
+            endGame('Game Over!');
+        }, 1500);
     } else {
         resetPlayerPosition();
+        player.classList.add('hit');
+        setTimeout(() => {
+            player.classList.remove('hit');
+        }, 1500); 
     }
     playSound('lozer.wav');
 }
@@ -171,8 +183,7 @@ function resetPlayerPosition() {
     populateMaze();
 }
 
-// Move enemies randomly
-// Move enemies randomly
+// Move enemies randomly throught the maze
 function moveEnemies() {
     enemies.forEach(enemy => {
         let directions = [
@@ -210,13 +221,15 @@ function moveEnemies() {
 
 
 // Start the game when the start button is clicked
+// After starting the game start button is not displayed
 startButton.addEventListener('click', () => {
     startDiv.style.display = 'none';
     startGame();
     playSound('soundpacman.wav');
 });
 
-// End the game
+
+// End the game after all lives is gone
 function endGame(message) {
     clearInterval(gameInterval);
     clearInterval(enemyInterval);
@@ -226,10 +239,10 @@ function endGame(message) {
     if (playerName) {
         saveScore(playerName, score);
     }
-    location.reload(); // Restart the game (could be improved)
+    location.reload(); // Restart the game 
 }
 
-// Save the score to localStorage
+// Save the Score & Leaderboard to localStorage
 function saveScore(name, score) {
     const leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     leaderboard.push({ name: name, score: score });
@@ -250,7 +263,8 @@ function displayLeaderboard() {
     });
 }
 
-// Start the game loop
+
+// Start the game engine/loop
 function startGame() {
     gameInterval = setInterval(movePlayer, 200); // Adjust speed as needed
     enemyInterval = setInterval(moveEnemies, 500); // Enemies move every 500ms
