@@ -67,6 +67,24 @@ document.getElementById("dbttn").addEventListener("click", () => {
   downPressed = false; // Reset after movement
 });
 
+
+
+// Function to handle the win condition
+function winGame() {
+    clearInterval(gameInterval);
+    clearInterval(enemyInterval);
+    alert("You win!");
+    playSound("win.wav"); // Assuming you have a win sound
+  
+    const playerName = prompt(`You Win!\nPlease enter your name:`);
+    if (playerName) {
+      saveScore(playerName, score);
+    }
+  
+    location.reload(); // Restart the game
+  }
+
+
 // Player movement and grid-based collision detection
 function movePlayer() {
   let newX = playerX;
@@ -77,14 +95,19 @@ function movePlayer() {
   else if (leftPressed) newX--;
   else if (rightPressed) newX++;
 
-  // Collision detection and movement
-  if (maze[newY][newX] !== 1) {
-    if (maze[newY][newX] === 3) {
-      loseLife();
-    } else if (maze[newY][newX] === 0) {
-      score += 10;
-      scoreElement.textContent = score;
-    }
+    if (maze[newY][newX] !== 1) {
+        if (maze[newY][newX] === 3) {
+        loseLife();
+        } else if (maze[newY][newX] === 0) {
+        score += 10;
+        scoreElement.textContent = score;
+
+        // Check if the player has reached the maximum score
+        if (score >= 530) {
+            winGame();
+            return;
+        }
+        }
 
     // Update maze and player position
     maze[playerY][playerX] = -1; // Mark old position as visited
@@ -94,6 +117,8 @@ function movePlayer() {
     populateMaze();
     updatePlayerMouthDirection();
   }
+
+  
 }
 
 // Update the populateMaze function to handle visited cells
