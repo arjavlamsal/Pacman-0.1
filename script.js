@@ -124,7 +124,8 @@ function populateMaze() {
                     block.style.width = '1vh';
                     break;
                 case -1:
-                    // Do nothing for visited cells, so the point doesn't reappear
+                    block.style.height = '1vh';
+                    block.style.width = '1vh';
                     break;
             }
 
